@@ -43,4 +43,8 @@ public class Ticket {
     public void setTaskUrgency(String taskUrgency) {
         this.taskUrgency = taskUrgency;
     }
+
+    public UUID getUuid() {
+        return uuid;
+    }
 }
