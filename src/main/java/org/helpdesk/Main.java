@@ -26,6 +26,10 @@ public class Main {
                     case "1":
                         System.out.print("We are sorry to hear that you have faced some issues. Kindly enter your email for ticket creation: ");
                         String email = in.nextLine();
+                        while(!isValidEmailAddress(email)){
+                            System.out.println("The email address is not correct. Please specify valid email");
+                            email = in.nextLine();
+                        }
 
                         System.out.print("Thanks! Please specify the issue you have faced (max 255 digits): ");
                         String description = in.nextLine();
@@ -123,5 +127,12 @@ public class Main {
                 "\n Email: " + ticket.getEmail() +
                 "\n Description: " + ticket.getDescription() +
                 "\n Priority: " + ticket.getTaskUrgency());
+    }
+
+    public static boolean isValidEmailAddress(String email) {
+        String ePattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
+        java.util.regex.Pattern p = java.util.regex.Pattern.compile(ePattern);
+        java.util.regex.Matcher m = p.matcher(email);
+        return m.matches();
     }
 }
