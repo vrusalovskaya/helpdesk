@@ -22,6 +22,12 @@ public class Main {
 
                 String command = in.nextLine();
 
+                while(!command.matches("[12345]")){
+                    System.out.println("The command was not correctly specified. Please enter a number from 1 to 5");
+                    command = in.nextLine();
+                }
+
+
                 switch (command) {
                     case "1":
                         System.out.print("We are sorry to hear that you have faced some issues. Kindly enter your email for ticket creation: ");
@@ -33,9 +39,17 @@ public class Main {
 
                         System.out.print("Thanks! Please specify the issue you have faced (max 255 digits): ");
                         String description = in.nextLine();
+                        while(description.length()>255){
+                            System.out.println("The limit was exceeded. Please use no more than 255 digits to specify the description of the issue");
+                            description = in.nextLine();
+                        }
 
-                        System.out.print("Specify the urgency of the issue (low/medium/high) ");
+                        System.out.print("Specify the urgency of the issue (low/medium/high) or press \"enter\" if you would like to skip this step");
                         String taskUrgency = in.nextLine();
+                        while(!isValidTaskUrgency(taskUrgency)){
+                            System.out.println("The urgency of the ticket was not defined correctly. Kindly specify one of required values (low/medium/high) or press \"enter\"");
+                            taskUrgency = in.nextLine();
+                        }
 
                         if (Objects.equals(taskUrgency, "")) {
                             taskUrgency = "low";
@@ -84,10 +98,21 @@ public class Main {
                                  3. Priority""");
                         String command4 = in.nextLine();
 
+                        while(!command4.matches("[123]")){
+                            System.out.println("The command was not correctly specified. Please enter from 1 to 3");
+                            command4 = in.nextLine();
+                        }
+
                         switch (command4) {
                             case "1":
                                 System.out.println("Enter new email: ");
                                 String updatedEmail = in.nextLine();
+
+                                while(!isValidEmailAddress(updatedEmail)){
+                                    System.out.println("The email address is not correct. Please specify valid email ");
+                                    updatedEmail = in.nextLine();
+                                }
+
                                 updatedTicket.setEmail(updatedEmail);
                                 System.out.println("Email was successfully updated. Here is the relevant information about ticket: ");
                                 printTicket(updatedTicket);
@@ -134,5 +159,10 @@ public class Main {
         java.util.regex.Pattern p = java.util.regex.Pattern.compile(ePattern);
         java.util.regex.Matcher m = p.matcher(email);
         return m.matches();
+    }
+
+
+    public static boolean isValidTaskUrgency(String taskUrgency){
+        return taskUrgency.equals("low") || taskUrgency.equals("medium") || taskUrgency.equals("high") || taskUrgency.isEmpty();
     }
 }
