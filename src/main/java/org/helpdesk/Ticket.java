@@ -3,7 +3,7 @@ package org.helpdesk;
 import java.util.UUID;
 
 public class Ticket {
-    private UUID uuid;
+    private final UUID uuid;
     private String email;
     private String description;
     private String taskUrgency;
@@ -13,10 +13,6 @@ public class Ticket {
         this.email = email;
         this.description = description;
         this.taskUrgency = taskUrgency;
-    }
-
-    public Ticket(String email, String description) {
-        this(email, description, "low");
     }
 
 

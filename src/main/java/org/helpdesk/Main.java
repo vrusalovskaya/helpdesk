@@ -1,6 +1,7 @@
 package org.helpdesk;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -11,12 +12,13 @@ public class Main {
             boolean keepGoing = true;
             while (keepGoing) {
 
-                System.out.println("Hello! How can we help you today? Kindly specify the number of the needed action" +
-                        "\n 1. Create the ticket" +
-                        "\n 2. Show ticket by it's ID " +
-                        "\n 3. Show all tickets registered under specific email" +
-                        "\n 4. Update ticket by ID" +
-                        "\n 5. Delete ticket by ID");
+                System.out.println("""
+                        Hello! How can we help you today? Kindly specify the number of the needed action
+                         1. Create the ticket
+                         2. Show ticket by it's ID\s
+                         3. Show all tickets registered under specific email
+                         4. Update ticket by ID
+                         5. Delete ticket by ID""");
 
                 String command = in.nextLine();
 
@@ -31,7 +33,7 @@ public class Main {
                         System.out.print("Specify the urgency of the issue (low/medium/high) ");
                         String taskUrgency = in.nextLine();
 
-                        if (taskUrgency == "") {
+                        if (Objects.equals(taskUrgency, "")) {
                             taskUrgency = "low";
                         }
 
@@ -71,10 +73,11 @@ public class Main {
                         UUID updatedID = UUID.fromString(in.nextLine());
                         Ticket updatedTicket = ticketStorage.get(updatedID);
 
-                        System.out.println("Specify the information you would like to update (enter the number):" +
-                                "\n 1. Email" +
-                                "\n 2. Description" +
-                                "\n 3. Priority");
+                        System.out.println("""
+                                Specify the information you would like to update (enter the number):
+                                 1. Email
+                                 2. Description
+                                 3. Priority""");
                         String command4 = in.nextLine();
 
                         switch (command4) {
