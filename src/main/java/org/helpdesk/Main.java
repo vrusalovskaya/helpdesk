@@ -1,13 +1,19 @@
 package org.helpdesk;
 
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Scanner;
-import java.util.UUID;
+import java.util.*;
 
 public class Main {
-    public static void main(String[] args) {
-        HashMap<UUID, Ticket> ticketStorage = new HashMap<>();
+    public static void main (String[] args) throws Exception {
+
+        HashMap <UUID, Ticket> ticketStorage = new HashMap<>();
+
+        TicketStorage storage = new TicketStorage();
+        ArrayList<Ticket> allTickets = storage.getALLTickets();
+        for (Ticket ticket : allTickets) {
+            ticketStorage.put(ticket.getUuid(), ticket);
+        }
+
+
         try (Scanner in = new Scanner(System.in)) {
             boolean keepGoing = true;
             while (keepGoing) {
@@ -18,11 +24,12 @@ public class Main {
                          2. Show ticket by it's ID\s
                          3. Show all tickets registered under specific email
                          4. Update ticket by ID
-                         5. Delete ticket by ID""");
+                         5. Delete ticket by ID
+                         6. Print all tickets""");
 
                 String command = in.nextLine();
 
-                while(!command.matches("[12345]")){
+                while(!command.matches("[123456]")){
                     System.out.println("The command was not correctly specified. Please enter a number from 1 to 5");
                     command = in.nextLine();
                 }
@@ -57,6 +64,7 @@ public class Main {
 
                         Ticket ticket = new Ticket(email, description, taskUrgency);
                         ticketStorage.put(ticket.getUuid(), ticket);
+                        storage.addTicket(ticket);
 
                         System.out.println("Your ticket was successfully created. You can track it by the following number: " + ticket.getUuid());
                         break;
@@ -75,6 +83,7 @@ public class Main {
                         String reviewedEmail = in.nextLine();
 
                         int numberOfMatches = 0;
+
                         for (Ticket ticket3 : ticketStorage.values()) {
                             if (reviewedEmail.equals(ticket3.getEmail())) {
                                 printTicket(ticket3);
@@ -134,17 +143,26 @@ public class Main {
                                 printTicket(updatedTicket);
                                 break;
                         }
+                        storage.updateTicket(updatedTicket);
                         break;
 
                     case "5":
                         System.out.println("Enter the ID of the ticket you would like to delete:");
                         UUID deletedID = UUID.fromString(in.nextLine());
                         ticketStorage.remove(deletedID);
+                        storage.deleteTicket(deletedID);
                         System.out.println("Ticket was successfully deleted");
+                        break;
+
+                    case "6":
+                        for (Ticket value : ticketStorage.values()) {
+                            printTicket(value);
+                        }
                         break;
                 }
             }
         }
+
     }
 
     public static void printTicket(Ticket ticket) {
