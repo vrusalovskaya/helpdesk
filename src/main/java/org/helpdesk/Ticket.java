@@ -50,5 +50,4 @@ public class Ticket implements Serializable {
     public UUID getUuid() {
         return uuid;
     }
-    public void setUuid(){this.uuid = UUID.randomUUID();}
 }

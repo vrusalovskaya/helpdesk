@@ -25,7 +25,7 @@ public void addTicket(Ticket ticket){
 }
 
     public static ArrayList<Ticket> getALLTickets() {
-        ArrayList<Ticket> allTickets = new ArrayList<Ticket>();
+        ArrayList<Ticket> allTickets = new ArrayList<>();
         try (FileReader filereader = new FileReader(filePath)) {
 
             CSVReader csvReader = new CSVReader(filereader);
