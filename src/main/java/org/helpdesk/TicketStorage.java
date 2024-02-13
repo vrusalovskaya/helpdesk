@@ -1,34 +1,36 @@
 package org.helpdesk;
 
 import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 
-import java.io.*;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class TicketStorage {
+public final class TicketStorage {
 
-    private static final String filePath = "./db.csv";
-public TicketStorage(){
+    private final String filePath;
 
-}
-
-public void addTicket(Ticket ticket){
-    try( FileWriter writer = new FileWriter(filePath, true))
-    {
-        writer.write(ticket.getUuid().toString() + "," + ticket.getEmail() + "," + ticket.getDescription() + "," + ticket.getTaskUrgency());
-        writer.write('\n');
+    public TicketStorage(String filePath) {
+        this.filePath = filePath;
     }
-    catch(Exception ex){
-        System.out.println(ex.getMessage());
+
+    public void addTicket(Ticket ticket) throws IOException {
+        try (FileWriter writer = new FileWriter(filePath, true)) {
+            writer.write(ticket.getUuid().toString() + "," + ticket.getEmail() + "," + ticket.getDescription() + "," + ticket.getTaskUrgency());
+            writer.write('\n');
+        }
     }
-}
 
-    public static ArrayList<Ticket> getALLTickets() {
-        ArrayList<Ticket> allTickets = new ArrayList<>();
-        try (FileReader filereader = new FileReader(filePath)) {
-
-            CSVReader csvReader = new CSVReader(filereader);
+    public List<Ticket> getTickets() throws IOException, CsvValidationException {
+        ArrayList<Ticket> tickets = new ArrayList<>();
+        try (
+                FileReader filereader = new FileReader(filePath);
+                CSVReader csvReader = new CSVReader(filereader)
+        ) {
             String[] nextRecord;
 
             while ((nextRecord = csvReader.readNext()) != null) {
@@ -36,55 +38,42 @@ public void addTicket(Ticket ticket){
                         UUID.fromString(nextRecord[0]),
                         nextRecord[1],
                         nextRecord[2],
-                        nextRecord[3]);
-                allTickets.add(ticket);
+                        UrgencyType.valueOf(nextRecord[3]));
+                tickets.add(ticket);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        return allTickets;
+        return tickets;
     }
 
-    public void updateTicket(Ticket updatedTicket){
+    public void updateTicket(Ticket updatedTicket) throws CsvValidationException, IOException {
+        var tickets = getTickets();
 
-    ArrayList<Ticket> allTickets = getALLTickets();
-    try(FileWriter writer = new FileWriter(filePath, false))
-        {
-            for (Ticket ticket : allTickets) {
-                if (ticket.getUuid().equals(updatedTicket.getUuid())){
-                    int index = allTickets.indexOf(ticket);
-                    allTickets.set(index, updatedTicket);
-                }
-            }
+        clearDatabase();
 
-            for (Ticket ticket : allTickets) {
+        for (Ticket ticket : tickets) {
+            if (ticket.getUuid().equals(updatedTicket.getUuid())) {
+                this.addTicket(updatedTicket);
+            } else {
                 this.addTicket(ticket);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch(Exception ex){
-            System.out.println(ex.getMessage());
-
-    }
-    }
-
-    public void deleteTicket (UUID deletedID){
-        ArrayList<Ticket> allTickets = getALLTickets();
-        try(FileWriter writer = new FileWriter(filePath, false))
-        {
-            allTickets.removeIf(ticket -> ticket.getUuid().equals(deletedID));
-
-            for (Ticket ticket : allTickets) {
-                this.addTicket(ticket);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch(Exception ex){
-            System.out.println(ex.getMessage());
-
         }
     }
 
+    public void deleteTicket(UUID deletedID) throws CsvValidationException, IOException {
+        var tickets = getTickets();
 
+        clearDatabase();
+
+        tickets.removeIf(ticket -> ticket.getUuid().equals(deletedID));
+
+        for (Ticket ticket : tickets) {
+            this.addTicket(ticket);
+        }
+    }
+
+    private void clearDatabase() throws IOException {
+        try (FileWriter writer = new FileWriter(filePath, false)) {
+        }
+    }
 
 }

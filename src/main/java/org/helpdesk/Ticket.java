@@ -1,21 +1,18 @@
 package org.helpdesk;
 
-import java.io.Serializable;
 import java.util.UUID;
 
-public class Ticket implements Serializable {
-    private UUID uuid;
+public final class Ticket {
+    private final UUID uuid;
     private String email;
     private String description;
-    private String taskUrgency;
+    private UrgencyType taskUrgency;
 
-    public Ticket(String email, String description, String taskUrgency) {
-        this.uuid = UUID.randomUUID();
-        this.email = email;
-        this.description = description;
-        this.taskUrgency = taskUrgency;
+    public Ticket(String email, String description, UrgencyType taskUrgency) {
+        this(UUID.randomUUID(), email, description, taskUrgency);
     }
-    public Ticket(UUID uuid, String email, String description, String taskUrgency) {
+
+    Ticket(UUID uuid, String email, String description, UrgencyType taskUrgency) {
         this.uuid = uuid;
         this.email = email;
         this.description = description;
@@ -39,11 +36,11 @@ public class Ticket implements Serializable {
         this.description = description;
     }
 
-    public String getTaskUrgency() {
+    public UrgencyType getTaskUrgency() {
         return taskUrgency;
     }
 
-    public void setTaskUrgency(String taskUrgency) {
+    public void setTaskUrgency(UrgencyType taskUrgency) {
         this.taskUrgency = taskUrgency;
     }
 
@@ -51,3 +48,4 @@ public class Ticket implements Serializable {
         return uuid;
     }
 }
+
