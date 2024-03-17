@@ -1,22 +1,12 @@
 package org.helpdesk;
 
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Scanner;
-import java.util.UUID;
+import java.util.*;
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        HashMap<UUID, Ticket> ticketStorage = new HashMap<>();
-
         TicketStorage storage = new TicketStorage(args[0]);
-        var tickets = storage.getTickets();
-        for (Ticket ticket : tickets) {
-            ticketStorage.put(ticket.getUuid(), ticket);
-        }
-
 
         try (Scanner in = new Scanner(System.in)) {
             boolean keepGoing = true;
@@ -42,31 +32,29 @@ public class Main {
                     case "1":
                         System.out.print("We are sorry to hear that you have faced some issues. Kindly enter your email for ticket creation: ");
                         String email = in.nextLine();
-                        while (!isValidEmailAddress(email)) {
+                        while (!UserInputValidator.isValidEmailAddress(email)) {
                             System.out.println("The email address is not correct. Please specify valid email");
                             email = in.nextLine();
                         }
 
                         System.out.print("Thanks! Please specify the issue you have faced (max 255 digits): ");
                         String description = in.nextLine();
-                        while (description.length() > 255) {
+                        while (!UserInputValidator.isValidDescriptionLength(description)) {
                             System.out.println("The limit was exceeded. Please use no more than 255 digits to specify the description of the issue");
                             description = in.nextLine();
                         }
 
-                        System.out.print("Specify the urgency of the issue (low/medium/high) or press \"enter\" if you would like to skip this step");
-                        String taskUrgency = in.nextLine().toUpperCase();
-                        while (!isValidTaskUrgency(taskUrgency)) {
-                            System.out.println("The urgency of the ticket was not defined correctly. Kindly specify one of required values (low/medium/high) or press \"enter\"");
+                        System.out.print("Specify the urgency of the issue (" + getEnumDescriptions() + ") or press \"enter\" if you would like to skip this step");
+                        String taskUrgency = in.nextLine();
+
+                        while (!UserInputValidator.isValidTaskUrgency(taskUrgency)) {
+                            System.out.println("The urgency of the ticket was not defined correctly. Kindly specify one of required values (" + getEnumDescriptions() + " )or press \"enter\"");
                             taskUrgency = in.nextLine().toUpperCase();
                         }
 
-                        if (Objects.equals(taskUrgency, "")) {
-                            taskUrgency = "LOW";
-                        }
+                        UrgencyType taskUrgencyEnum = UserInputValidator.parseTaskUrgency(taskUrgency);
 
-                        Ticket ticket = new Ticket(email, description, UrgencyType.valueOf(taskUrgency));
-                        ticketStorage.put(ticket.getUuid(), ticket);
+                        Ticket ticket = new Ticket(email, description, taskUrgencyEnum);
                         storage.addTicket(ticket);
 
                         System.out.println("Your ticket was successfully created. You can track it by the following number: " + ticket.getUuid());
@@ -76,7 +64,7 @@ public class Main {
                         System.out.println("Enter the ID of the ticket you would like to review:");
                         UUID reviewedID = UUID.fromString(in.nextLine());
 
-                        Ticket reviewedTicket = ticketStorage.get(reviewedID);
+                        Ticket reviewedTicket = storage.getTicket(reviewedID);
                         printTicket(reviewedTicket);
 
                         break;
@@ -87,7 +75,7 @@ public class Main {
 
                         int numberOfMatches = 0;
 
-                        for (Ticket ticket3 : ticketStorage.values()) {
+                        for (Ticket ticket3 : storage.getTickets()) {
                             if (reviewedEmail.equals(ticket3.getEmail())) {
                                 printTicket(ticket3);
                                 ++numberOfMatches;
@@ -101,7 +89,7 @@ public class Main {
                     case "4":
                         System.out.println("Enter the ID of the ticket you would like to update:");
                         UUID updatedID = UUID.fromString(in.nextLine());
-                        Ticket updatedTicket = ticketStorage.get(updatedID);
+                        Ticket updatedTicket = storage.getTicket(updatedID);
 
                         System.out.println("""
                                 Specify the information you would like to update (enter the number):
@@ -120,7 +108,7 @@ public class Main {
                                 System.out.println("Enter new email: ");
                                 String updatedEmail = in.nextLine();
 
-                                while (!isValidEmailAddress(updatedEmail)) {
+                                while (!UserInputValidator.isValidEmailAddress(updatedEmail)) {
                                     System.out.println("The email address is not correct. Please specify valid email ");
                                     updatedEmail = in.nextLine();
                                 }
@@ -133,15 +121,25 @@ public class Main {
                             case "2":
                                 System.out.println("Enter new description: ");
                                 String updatedDescription = in.nextLine();
+                                while (!UserInputValidator.isValidDescriptionLength(updatedDescription)) {
+                                    System.out.println("The limit was exceeded. Please use no more than 255 digits to specify the description of the issue");
+                                    updatedDescription = in.nextLine();
+                                }
                                 updatedTicket.setDescription(updatedDescription);
                                 System.out.println("Description was successfully updated. Here is the relevant information about ticket: ");
                                 printTicket(updatedTicket);
                                 break;
 
                             case "3":
-                                System.out.println("Enter the priority which should be set for the ticket (low/medium/high): ");
+                                System.out.println("Enter the priority which should be set for the ticket (" + getEnumDescriptions() + "): ");
                                 String updatedPriority = in.nextLine();
-                                updatedTicket.setTaskUrgency(UrgencyType.valueOf(updatedPriority));
+
+                                while (!UserInputValidator.isValidTaskUrgency(updatedPriority)) {
+                                    System.out.println("The urgency of the ticket was not defined correctly. Kindly specify one of required values (" + getEnumDescriptions() + " )or press \"enter\"");
+                                    updatedPriority = in.nextLine().toUpperCase();
+                                }
+
+                                updatedTicket.setTaskUrgency(UserInputValidator.parseTaskUrgency(updatedPriority));
                                 System.out.println("The priority of the ticket was successfully updated. Here is the relevant information about ticket: ");
                                 printTicket(updatedTicket);
                                 break;
@@ -152,13 +150,12 @@ public class Main {
                     case "5":
                         System.out.println("Enter the ID of the ticket you would like to delete:");
                         UUID deletedID = UUID.fromString(in.nextLine());
-                        ticketStorage.remove(deletedID);
                         storage.deleteTicket(deletedID);
                         System.out.println("Ticket was successfully deleted");
                         break;
 
                     case "6":
-                        for (Ticket value : ticketStorage.values()) {
+                        for (Ticket value : storage.getTickets()) {
                             printTicket(value);
                         }
                         break;
@@ -175,15 +172,12 @@ public class Main {
                 "\n Priority: " + ticket.getTaskUrgency());
     }
 
-    public static boolean isValidEmailAddress(String email) {
-        String ePattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
-        java.util.regex.Pattern p = java.util.regex.Pattern.compile(ePattern);
-        java.util.regex.Matcher m = p.matcher(email);
-        return m.matches();
+    private static String getEnumDescriptions(){
+        var result = "";
+        for (UrgencyType value : UrgencyType.values()) {
+            result = result + "/" + value.toString();
+        }
+        return result.replaceFirst("/", "");
     }
 
-
-    public static boolean isValidTaskUrgency(String taskUrgency) {
-        return taskUrgency.equals("LOW") || taskUrgency.equals("MEDIUM") || taskUrgency.equals("HIGH") || taskUrgency.isEmpty();
-    }
 }

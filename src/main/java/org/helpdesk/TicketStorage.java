@@ -3,6 +3,7 @@ package org.helpdesk;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,8 +15,10 @@ public final class TicketStorage {
 
     private final String filePath;
 
-    public TicketStorage(String filePath) {
+    public TicketStorage(String filePath) throws IOException {
         this.filePath = filePath;
+        File file = new File(filePath);
+        file.createNewFile();
     }
 
     public void addTicket(Ticket ticket) throws IOException {
@@ -23,6 +26,16 @@ public final class TicketStorage {
             writer.write(ticket.getUuid().toString() + "," + ticket.getEmail() + "," + ticket.getDescription() + "," + ticket.getTaskUrgency());
             writer.write('\n');
         }
+    }
+
+    public Ticket getTicket(UUID id) throws CsvValidationException, IOException {
+        var tickets = getTickets();
+        for (var ticket : tickets){
+            if (ticket.getUuid() == id){
+                return ticket;
+            }
+        }
+        return null;
     }
 
     public List<Ticket> getTickets() throws IOException, CsvValidationException {
