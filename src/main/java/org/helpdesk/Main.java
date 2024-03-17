@@ -1,12 +1,14 @@
 package org.helpdesk;
 
-import java.util.*;
+import java.util.Scanner;
+import java.util.UUID;
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
 
         TicketStorage storage = new TicketStorage(args[0]);
+        Helpdesk helpdesk = new Helpdesk(storage);
 
         try (Scanner in = new Scanner(System.in)) {
             boolean keepGoing = true;
@@ -54,8 +56,7 @@ public class Main {
 
                         UrgencyType taskUrgencyEnum = UserInputValidator.parseTaskUrgency(taskUrgency);
 
-                        Ticket ticket = new Ticket(email, description, taskUrgencyEnum);
-                        storage.addTicket(ticket);
+                        var ticket = helpdesk.createTicket(email, description, taskUrgencyEnum);
 
                         System.out.println("Your ticket was successfully created. You can track it by the following number: " + ticket.getUuid());
                         break;
@@ -64,7 +65,7 @@ public class Main {
                         System.out.println("Enter the ID of the ticket you would like to review:");
                         UUID reviewedID = UUID.fromString(in.nextLine());
 
-                        Ticket reviewedTicket = storage.getTicket(reviewedID);
+                        Ticket reviewedTicket = helpdesk.getTicket(reviewedID);
                         printTicket(reviewedTicket);
 
                         break;
@@ -72,24 +73,21 @@ public class Main {
                     case "3":
                         System.out.println("Enter the email:");
                         String reviewedEmail = in.nextLine();
+                        var tickets = helpdesk.getTicketsByEmail(reviewedEmail);
 
-                        int numberOfMatches = 0;
-
-                        for (Ticket ticket3 : storage.getTickets()) {
-                            if (reviewedEmail.equals(ticket3.getEmail())) {
-                                printTicket(ticket3);
-                                ++numberOfMatches;
-                            }
-                        }
-                        if (numberOfMatches == 0) {
+                        if (tickets.isEmpty()) {
                             System.out.println("No tickets were found under this email");
+                        } else {
+                            for (var t : tickets) {
+                                printTicket(t);
+                            }
                         }
                         break;
 
                     case "4":
                         System.out.println("Enter the ID of the ticket you would like to update:");
                         UUID updatedID = UUID.fromString(in.nextLine());
-                        Ticket updatedTicket = storage.getTicket(updatedID);
+                        Ticket updatedTicket = helpdesk.getTicket(updatedID);
 
                         System.out.println("""
                                 Specify the information you would like to update (enter the number):
@@ -144,18 +142,18 @@ public class Main {
                                 printTicket(updatedTicket);
                                 break;
                         }
-                        storage.updateTicket(updatedTicket);
+                        helpdesk.updateTicket(updatedTicket);
                         break;
 
                     case "5":
                         System.out.println("Enter the ID of the ticket you would like to delete:");
                         UUID deletedID = UUID.fromString(in.nextLine());
-                        storage.deleteTicket(deletedID);
+                        helpdesk.deleteTicket(deletedID);
                         System.out.println("Ticket was successfully deleted");
                         break;
 
                     case "6":
-                        for (Ticket value : storage.getTickets()) {
+                        for (Ticket value : helpdesk.getTickets()) {
                             printTicket(value);
                         }
                         break;
@@ -172,7 +170,7 @@ public class Main {
                 "\n Priority: " + ticket.getTaskUrgency());
     }
 
-    private static String getEnumDescriptions(){
+    private static String getEnumDescriptions() {
         var result = "";
         for (UrgencyType value : UrgencyType.values()) {
             result = result + "/" + value.toString();

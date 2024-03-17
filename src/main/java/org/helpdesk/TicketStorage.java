@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public final class TicketStorage {
+public final class TicketStorage implements ITicketStorage {
 
     private final String filePath;
 

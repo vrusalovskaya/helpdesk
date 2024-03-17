@@ -17,6 +17,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Class" />
+        <option value="Interface" />
       </list>
     </option>
   </component>
@@ -133,7 +134,15 @@
       <option name="project" value="LOCAL" />
       <updated>1707419483317</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="add TaskUrgency enum; extract validation logic">
+      <option name="closed" value="true" />
+      <created>1710680647651</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1710680647651</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -153,14 +162,15 @@
     <MESSAGE value="basic logic of the console commands was added to the Main class (several warnings were eliminated)" />
     <MESSAGE value="email validation was added" />
     <MESSAGE value="validation was added for the following inputs: commands, description, task urgency,email" />
-    <option name="LAST_COMMIT_MESSAGE" value="validation was added for the following inputs: commands, description, task urgency,email" />
+    <MESSAGE value="add TaskUrgency enum; extract validation logic" />
+    <option name="LAST_COMMIT_MESSAGE" value="add TaskUrgency enum; extract validation logic" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/org/helpdesk/Main.java</url>
-          <line>46</line>
+          <line>48</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
         <breakpoint enabled="true" type="java-exception">
